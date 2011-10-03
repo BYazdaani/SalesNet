@@ -19,7 +19,7 @@ use ReflectionClass;
  * @author Jeremy Cook
  * @version 1.0
  */
-class Login {
+class Authentication {
 	/**
 	 * The Company login name
 	 * 

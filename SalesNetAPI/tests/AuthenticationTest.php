@@ -1,29 +1,29 @@
 <?php
 require_once 'PHPUnit/Autoload.php';
 
-require_once dirname(__DIR__) . '/library/webservices/soap/salesnet/login.class.php';
+require_once dirname(__DIR__) . '/library/webservices/soap/salesnet/authentication.class.php';
 
-use WebServices\Soap\SalesNet\Login;
+use WebServices\Soap\SalesNet\Authentication;
 /**
- * Test case for the SalesNetLogin class
+ * Test case for the SalesNet Authentication class
  * 
  * @author Jeremy Cook
  * @version 1.0
  */
-class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
+class AuthenticationTest extends PHPUnit_Framework_TestCase {
 	/**
-	 * Fixture instance of Login
+	 * Fixture instance of Authentication
 	 * 
-	 * @var Login
+	 * @var Authentication
 	 */
-	protected $login;
+	protected $auth;
 	/**
 	 * Method to create the fixture for each test run
 	 * 
 	 * @return void
 	 */
 	protected function setUp() {
-		$this->login = new Login();
+		$this->auth = new Authentication();
 	}
 	/**
 	 * 
@@ -32,8 +32,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider ValidExpiryHours
 	 */
 	public function testConstruct($expiryHours) {
-		$login = new Login($expiryHours);
-		$this->assertAttributeEquals(sprintf('+%s hours', $expiryHours), 'TokenExpiryString', $login);
+		$this->auth->__construct($expiryHours);
+		$this->assertAttributeEquals(sprintf('+%s hours', $expiryHours), 'TokenExpiryString', $this->auth);
 	}
 	/**
 	 * 
@@ -42,8 +42,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider InvalidExpiryHours
 	 */
 	public function testBadExpiryHoursRaisesException($expiryHours) {
-		$this->setExpectedException('InvalidArgumentException', sprintf('The number of hours for the token to be valid must be between 1 and 12, "%s" passed in WebServices\Soap\SalesNet\Login::__construct', $expiryHours));
-		$login = new Login($expiryHours);
+		$this->setExpectedException('InvalidArgumentException', sprintf('The number of hours for the token to be valid must be between 1 and 12, "%s" passed in WebServices\Soap\SalesNet\Authentication::__construct', $expiryHours));
+		$this->auth->__construct($expiryHours);
 	}
 	/**
 	 * Method to test that setting the company login works
@@ -51,8 +51,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider TestCredentialsData
 	 */
 	public function testCompanyLogin($company) {
-		$this->assertSame($this->login, $this->login->setCompanyLogin($company));
-		$this->assertSame($company, $this->login->getCompanyLogin());
+		$this->assertSame($this->auth, $this->auth->setCompanyLogin($company));
+		$this->assertSame($company, $this->auth->getCompanyLogin());
 	}
 	/**
 	 * Method to test that setting the user login works.
@@ -60,8 +60,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider TestCredentialsData
 	 */
 	public function testUserLogin($user) {
-		$this->assertSame($this->login, $this->login->setUserName($user));
-		$this->assertSame($user, $this->login->getUserName());
+		$this->assertSame($this->auth, $this->auth->setUserName($user));
+		$this->assertSame($user, $this->auth->getUserName());
 	}
 	/**
 	 * Method to assert that setting the user password works
@@ -69,8 +69,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider TestCredentialsData
 	 */
 	public function testPassword($password) {
-		$this->assertSame($this->login, $this->login->setPassword($password));
-		$this->assertSame($password, $this->login->getPassword());
+		$this->assertSame($this->auth, $this->auth->setPassword($password));
+		$this->assertSame($password, $this->auth->getPassword());
 	}
 	/**
 	 * Test method for performing a login.
@@ -80,9 +80,9 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testLogin($company, $user, $password, array $opts = NULL) {
 		if ($opts)
-			$this->login->setSoapOpts($opts);
-		$this->login->setCompanyLogin($company)->setUserName($user)->setPassword($password);
-		$this->assertInstanceOf('SoapHeader', $this->login->doLogin());
+			$this->auth->setSoapOpts($opts);
+		$this->auth->setCompanyLogin($company)->setUserName($user)->setPassword($password);
+		$this->assertInstanceOf('SoapHeader', $this->auth->doLogin());
 	}
 	
 	/**
@@ -91,8 +91,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider ValidCredentials
 	 */
 	public function testHeaderObjectsSame($company, $user, $password) {
-		$this->login->setCompanyLogin($company)->setUserName($user)->setPassword($password);
-		$this->assertSame($this->login->doLogin(), $this->login->doLogin());
+		$this->auth->setCompanyLogin($company)->setUserName($user)->setPassword($password);
+		$this->assertSame($this->auth->doLogin(), $this->auth->doLogin());
 	}
 	/**
 	 * Test method for asserting that the SoapHeader object returned from logging in is stored and used on subsequent requests.
@@ -100,27 +100,27 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider ValidCredentials
 	 */
 	public function testExpiryTime($company, $user, $password) {
-		$this->login->setCompanyLogin($company)->setUserName($user)->setPassword($password)->doLogin();
-		$this->assertInstanceOf('DateTime', $this->login->getExpiryTime());
+		$this->auth->setCompanyLogin($company)->setUserName($user)->setPassword($password)->doLogin();
+		$this->assertInstanceOf('DateTime', $this->auth->getExpiryTime());
 		$date = new DateTime('+12 hours', new DateTimeZone('UTC'));
-		$this->assertSame($date->format('G'), $this->login->getExpiryTime()->format('G'));
+		$this->assertSame($date->format('G'), $this->auth->getExpiryTime()->format('G'));
 	}
 	/**
 	 * Tests setting an expiry time manually
 	 * @dataProvider ExpiryTimes
 	 */
 	public function testSetExpiryTime(DateTime $time) {
-		$this->login->setExpiryTime($time);
-		$this->assertSame($time, $this->login->getExpiryTime());
+		$this->auth->setExpiryTime($time);
+		$this->assertSame($time, $this->auth->getExpiryTime());
 	}
 	/**
 	 * Tests that setting a new expiry time that has already past causes a new SoapHeader (and security token) to be set.
 	 * @dataProvider ValidCredentials
 	 */
 	public function testNewExpiryTimeCausesNewSoapHeader($company, $user, $password) {
-		$header = $this->login->setCompanyLogin($company)->setUserName($user)->setPassword($password)->doLogin();
-		$this->login->setExpiryTime(new DateTime('-1 week', new DateTimeZone('UTC')));
-		$this->assertThat($this->login->doLogin(), $this->logicalNot($this->identicalTo($header)));
+		$header = $this->auth->setCompanyLogin($company)->setUserName($user)->setPassword($password)->doLogin();
+		$this->auth->setExpiryTime(new DateTime('-1 week', new DateTimeZone('UTC')));
+		$this->assertThat($this->auth->doLogin(), $this->logicalNot($this->identicalTo($header)));
 	}
 	/**
 	 * Method to assert that attempting a login with no credentials raises an exception
@@ -128,7 +128,7 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @expectedException \BadMethodCallException
 	 */
 	public function testLoginNoData() {
-		$this->login->doLogin();
+		$this->auth->doLogin();
 	}
 	/**
 	 * 
@@ -136,19 +136,19 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * Asserts that when the object is serialized and unserialized it is equal to the unserialized instance
 	 */
 	public function testSerialize() {
-		$obj = serialize($this->login);
-		$this->assertEquals($this->login, unserialize($obj));
+		$obj = serialize($this->auth);
+		$this->assertEquals($this->auth, unserialize($obj));
 	}
 	/**
 	 * 
 	 * Tests that the reset method causes all properties available through getters to be reset to null
 	 */
 	public function testReset() {
-		$this->assertSame($this->login, $this->login->reset());
-		$reflect = new ReflectionObject($this->login);
+		$this->assertSame($this->auth, $this->auth->reset());
+		$reflect = new ReflectionObject($this->auth);
 		foreach ($reflect->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 			if (substr($method, 0, 3) === 'get') {
-				$this->assertNull($this->login->$method());
+				$this->assertNull($this->auth->$method());
 			}
 		}
 	}
@@ -157,8 +157,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider SoapOpts
 	 */
 	public function testSetSoapOpts(array $opts) {
-		$this->assertSame($this->login, $this->login->setSoapOpts($opts));
-		$this->assertSame($opts, $this->login->getSoapOpts());
+		$this->assertSame($this->auth, $this->auth->setSoapOpts($opts));
+		$this->assertSame($opts, $this->auth->getSoapOpts());
 	}
 	/**
 	 * Method to assert that a bad login results in a SoapFault.
@@ -166,7 +166,7 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testBadLogin() {
 		$this->setExpectedException('SoapFault', 'An Error has occurred.');
-		$this->login->setCompanyLogin('foo')->setUserName('bar')->setPassword('baz')->doLogin();
+		$this->auth->setCompanyLogin('foo')->setUserName('bar')->setPassword('baz')->doLogin();
 	}
 	/**
 	 * Assert that a non-string value passed to setCompanyLogin results in an exception
@@ -174,8 +174,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider BadCredentialData
 	 */
 	public function testBadCompany($company) {
-		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Login::setCompanyLogin must be a string', $company));
-		$this->login->setCompanyLogin($company);
+		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Authentication::setCompanyLogin must be a string', $company));
+		$this->auth->setCompanyLogin($company);
 	}
 	/**
 	 * Assert that a non-string value passed to setUserName results in an exception
@@ -183,8 +183,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider BadCredentialData
 	 */
 	public function testBadUser($user) {
-		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Login::setUserName must be a string', $user));
-		$this->login->setUserName($user);
+		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Authentication::setUserName must be a string', $user));
+		$this->auth->setUserName($user);
 	}
 	/**
 	 * Assert that a non-string value passed to setPassword results in an exception
@@ -192,8 +192,8 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider BadCredentialData
 	 */
 	public function testBadPassword($password) {
-		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Login::setPassword must be a string', $password));
-		$this->login->setPassword($password);
+		$this->setExpectedException('InvalidArgumentException', sprintf('Argument "%s" passed to WebServices\Soap\SalesNet\Authentication::setPassword must be a string', $password));
+		$this->auth->setPassword($password);
 	}
 	/**
 	 * 
@@ -213,7 +213,7 @@ class SalesNetLoginTest extends PHPUnit_Framework_TestCase {
 	 */
 	static public function ValidCredentials() {
 		return array(
-			array('COMPANY_NAME', 'USERNAME', 'PASSWORD', array('trace' => TRUE, 'exceptions' => FALSE)),
+			array('COMPANY_NAME', 'USERNAME', 'PASSWORD', array('trace' => TRUE)),
 			array('COMPANY_NAME', 'USERNAME', 'PASSWORD', array())
 		);
 	}

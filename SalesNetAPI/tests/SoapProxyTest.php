@@ -2,18 +2,20 @@
 
 require_once dirname(__DIR__) . '/library/webservices/soap/salesnet/soapproxy.class.php';
 
-require_once dirname(__DIR__) . '/library/webservices/soap/salesnet/login.class.php';
+require_once dirname(__DIR__) . '/library/webservices/soap/salesnet/authentication.class.php';
 
 require_once 'PHPUnit/Autoload.php';
 
 use WebServices\Soap\SalesNet\SoapProxy;
-use WebServices\Soap\SalesNet\Login;
+use WebServices\Soap\SalesNet\Authentication;
 /**
- * SoapProxy test case.
+ * Tests for the Soap Proxy class for working with the SalesNet API.
+ * @author Jeremy Cook
  */
 class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	
 	/**
+	 * SoapProxy fixture for the tests.
 	 * @var SoapProxy
 	 */
 	private $SoapProxy;
@@ -38,30 +40,47 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	 * Tests SoapProxy->__construct()
 	 */
 	public function test__construct() {
-		$login = $this->getMock('WebServices\Soap\SalesNet\Login', array(), array(), '', FALSE);
-		$this->SoapProxy->__construct(SoapProxy::CAMPAIGNS, $login);
+		$auth = $this->getMock('WebServices\Soap\SalesNet\Authentication', array(), array(), '', FALSE);
+		$this->SoapProxy->__construct(SoapProxy::CAMPAIGNS, $auth);
 		$this->assertAttributeSame(SoapProxy::CAMPAIGNS, 'SoapUrl', $this->SoapProxy);
-		$this->assertAttributeSame($login, 'Login', $this->SoapProxy);
+		$this->assertAttributeSame($auth, 'Auth', $this->SoapProxy);
 	}
 	
 	/**
-	 * Tests that calls to undefined methods are proxied through to the soap client object held in the object.
+	 * Tests that calls to undefined methods are proxied through to the soap client property held in the object.
+	 * These are then called as methods of the SalesNet API
+	 * 
 	 * @dataProvider SoapCallDataProvider
 	 */
-	public function testProxyingToSoapClient($url, $method, array $args = NULL) {
-		$login = $this->getMock('WebServices\Soap\SalesNet\Login', array(), array(), '', FALSE);
-		$login->expects($this->once())->method('doLogin')->will($this->returnValue(new SoapHeader('http://www.salesnet.com/wsapi/', 'Authentication', array ('token' => 'foobar'))));
+	public function testProxyingToSoapClient($url, $method, array $args = array()) {
+		$auth = $this->getMock('WebServices\Soap\SalesNet\Authentication', array(), array(), '', FALSE);
+		$auth->expects($this->once())->method('doLogin')->will($this->returnValue(new SoapHeader('http://www.salesnet.com/wsapi/', 'Authentication', array ('token' => 'foobar'))));
 		$this->SoapProxy->setSoapUrl($url);
-		$this->SoapProxy->setLogin($login);
+		$this->SoapProxy->setAuthentication($auth);
 		try {
-			if ($args) {
-				$this->SoapProxy->$method($args);
-			} else {
-				$this->SoapProxy->$method();
-			}
+			$this->SoapProxy->$method($args);
 		} catch (BadMethodCallException $e) {
 			$this->assertInstanceOf('SoapFault', $e->getPrevious());
 		}
+	}
+	/**
+	 * Tests that calling a soap method before specifying which SalesNet endpoint to use raises an exception.
+	 * 
+	 * @dataProvider InvalidSoapMethodNamesProvider
+	 */
+	public function testCallingSoapMethodWithNoURLSetRaisesException($method) {
+		$this->setExpectedException('BadMethodCallException', sprintf('SoapUrl must be set before calling %s in WebServices\Soap\SalesNet\SoapProxy::__call', $method));
+		$this->SoapProxy->$method();
+	}
+	/**
+	 * Tests that calling a soap method before passing in an authentication object raises an exception.
+	 * 
+	 * @dataProvider InvalidSoapMethodNamesProvider
+	 */
+	public function testCallingSoapMethodWithNoLoginSetRaisesException($method) {
+		$this->setExpectedException('BadMethodCallException', sprintf('Authentication object must be set before calling %s in WebServices\Soap\SalesNet\SoapProxy::__call', $method));
+		$this->SoapProxy->setSoapUrl(SoapProxy::ACTIVITY);
+		$this->SoapProxy->$method();
 	}
 	
 	/**
@@ -82,12 +101,12 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests SoapProxy->setLogin()
+	 * Tests SoapProxy->setAuthentication()
 	 */
-	public function testSetLogin() {
-		$login = $this->getMock('WebServices\Soap\SalesNet\Login', array(), array(), '', FALSE);
-		$this->assertSame($this->SoapProxy, $this->SoapProxy->setLogin($login));
-		$this->assertAttributeSame($login, 'Login', $this->SoapProxy);
+	public function testSetAuthentication() {
+		$auth = $this->getMock('WebServices\Soap\SalesNet\Authentication', array(), array(), '', FALSE);
+		$this->assertSame($this->SoapProxy, $this->SoapProxy->setAuthentication($auth));
+		$this->assertAttributeSame($auth, 'Auth', $this->SoapProxy);
 	}
 	
 	/**
@@ -145,6 +164,14 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 		return array(
 			array(SoapProxy::ACTIVITY, 'foobar'),
 			array(SoapProxy::CAMPAIGNS, 'barbaz', array('bar' => 'baz'))
+		);
+	}
+	
+	static public function InvalidSoapMethodNamesProvider() {
+		return array(
+			array('foo'),
+			array('bar'),
+			array('baz')
 		);
 	}
 }

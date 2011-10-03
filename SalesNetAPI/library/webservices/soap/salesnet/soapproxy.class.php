@@ -55,19 +55,19 @@ class SoapProxy {
 	 * 
 	 * @var Login
 	 */
-	protected $Login;
+	protected $Auth;
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param string $SoapServiceUrl The name of the Soap Service to use. Should be one of the class constants if set
-	 * @param Login $Login Login object to get a SoapHeader from.
+	 * @param Authentication $auth Authentication object to get a SoapHeader from.
 	 */
-	public function __construct($SoapServiceUrl = '', Login $login = NULL) {
+	public function __construct($SoapServiceUrl = '', Authentication $auth = NULL) {
 		if ($SoapServiceUrl)
 			$this->setSoapUrl($SoapServiceUrl);
-		if ($login)
-			$this->Login = $login;
+		if ($auth)
+			$this->Auth = $auth;
 	}
 	
 	/**
@@ -79,15 +79,13 @@ class SoapProxy {
 	 * @return \stdClass
 	 * @throws \BadMethodCallException
 	 */
-	public function __call($name, array $arguments = NULL) {
+	public function __call($name, array $arguments = array()) {
 		try {
 			switch(true) {
 				case (! $this->SoapUrl) :
 					throw new BadMethodCallException(sprintf('SoapUrl must be set before calling %s in %s', $name, __METHOD__));
-				case (! $this->Login) :
-					throw new BadMethodCallException(sprintf('Login object must be set before calling %s in %s', $name, __METHOD__));
-				case is_null($arguments) :
-					return $this->getSoapClient()->__soapCall($name);
+				case (! $this->Auth) :
+					throw new BadMethodCallException(sprintf('Authentication object must be set before calling %s in %s', $name, __METHOD__));
 				default :
 					return $this->getSoapClient()->__soapCall($name, $arguments);
 			}
@@ -101,7 +99,7 @@ class SoapProxy {
 	 * @return array
 	 */
 	public function __sleep() {
-		return array('SoapUrl', 'SoapOpts', 'Login');
+		return array('SoapUrl', 'SoapOpts', 'Auth');
 	}
 	/**
 	 * Method to set Soap options to use if any.
@@ -117,11 +115,11 @@ class SoapProxy {
 	/**
 	 * 
 	 * Method to set a Login object to perform authentication against the SalesNet security API.
-	 * @param Login $login
+	 * @param Authentication $auth
 	 * @return WebServices\Soap\SalesNet\SoapProxy
 	 */
-	public function setLogin(Login $login) {
-		$this->Login = $login;
+	public function setAuthentication(Authentication $auth) {
+		$this->Auth = $auth;
 		return $this;
 	}
 	/**
@@ -163,7 +161,7 @@ class SoapProxy {
 					$this->SoapClient = new SoapClient($this->SoapUrl);
 				}
 			default :
-				$this->SoapClient->__setSoapHeaders($this->Login->doLogin());
+				$this->SoapClient->__setSoapHeaders($this->Auth->doLogin());
 				return $this->SoapClient;
 		}
 	}

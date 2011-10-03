@@ -47,7 +47,7 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests that calls to undefined methods are proxied through to the soap client property held in the object.
+	 * Tests that calls to undefined methods are proxied through to the soap client property held in the object using PHP's magic __call method.
 	 * These are then called as methods of the SalesNet API
 	 * 
 	 * @dataProvider SoapCallDataProvider
@@ -84,7 +84,7 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests SoapProxy->__sleep()
+	 * Tests the serialization of the object.
 	 */
 	public function test__sleep() {
 		$sleep = serialize($this->SoapProxy);
@@ -92,7 +92,8 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests SoapProxy->setSoapOpts()
+	 * Tests setting an array of soap options.
+	 * 
 	 * @dataProvider SoapOptsProvider
 	 */
 	public function testSetSoapOpts(array $soapOpts) {
@@ -101,7 +102,7 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests SoapProxy->setAuthentication()
+	 * Tests setting the authentication object
 	 */
 	public function testSetAuthentication() {
 		$auth = $this->getMock('WebServices\Soap\SalesNet\Authentication', array(), array(), '', FALSE);
@@ -110,7 +111,8 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Tests SoapProxy->setSoapUrl()
+	 * Tests setting the SOAP endpoing for the various SalesNet services.
+	 * 
 	 * @dataProvider ValidSoapUrlsProvider
 	 */
 	public function testSetSoapUrl($url) {
@@ -118,6 +120,7 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 		$this->assertAttributeSame($url, 'SoapUrl', $this->SoapProxy);
 	}
 	/**
+	 * Tests that passing an invalid URL as a SalesNet endpoint raises an exception.
 	 * 
 	 * @dataProvider InvalidUrlsProvider
 	 */
@@ -125,6 +128,10 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 		$this->setExpectedException('InvalidArgumentException', sprintf('Invalid url "%s" passed in WebServices\Soap\SalesNet\SoapProxy::setSoapUrl', $url));
 		$this->SoapProxy->setSoapUrl($url);
 	}
+	/**
+	 * 
+	 * Data Providers
+	 */
 	
 	static public function SoapOptsProvider() {
 		return array(
@@ -139,9 +146,8 @@ class SoapProxyTest extends PHPUnit_Framework_TestCase {
 		$ret = array();
 		/**
 		 * 
-		 * Use reflection to grab all of the url constants from the class.
-		 * Then set them in an array to return as arguments.
-		 * This will protect against any changes in the future to the soap endpoints.
+		 * Use reflection to grab all of the url constants from the class then set them in an array to return.
+		 * This will protect against any changes in the future to the soap endpoints and is easier than listing all of the url's here.
 		 */
 		$reflect = new ReflectionClass('WebServices\Soap\SalesNet\SoapProxy');
 		foreach ($reflect->getConstants() as $url) {

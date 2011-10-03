@@ -14,6 +14,11 @@ use ReflectionClass;
  * The results of SOAP calls are returned with no processing to the user to handle.
  * Authentication to SalesNet is handled by passing a SalesNet login object with the appropriate credentials to the class constructor.
  * 
+ * For example, assuming a SoapProxy object of $proxy, an array of arguments of $args and an Authentication object of $auth the following would call the GetDeals method of the Deals endpoint and return the results:
+ * 
+ * $proxy = new SoapProxy(SoapProxy::DEALS, $auth);
+ * $results = $proxy->GetDeals($args); 
+ * 
  * @author Jeremy Cook
  * @version 1.0
  */

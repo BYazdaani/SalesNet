@@ -16,6 +16,8 @@ use ReflectionClass;
  * It also tracks the expiry time of the SoapHeader and will automatically fetch a new token when the current one has expired.
  * This object can be serialized and stored (eg. in a session, APC, memcache or a database) so that the security token can be shared between different requests.
  * 
+ * This class is designed to be used with the SoapProxy class to provide authentication for it but it can be used indepently.
+ * 
  * @author Jeremy Cook
  * @version 1.0
  */

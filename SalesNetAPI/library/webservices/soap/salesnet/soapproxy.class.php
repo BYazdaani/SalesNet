@@ -27,16 +27,16 @@ class SoapProxy {
 	 * 
 	 * Constants for the various SalesNet SOAP endpoints.
 	 */
-	const CLIENTS = 'https://wsapi.salesnet.com/version_4/account.asmx?WSDL';
-	const DEALS = 'https://wsapi.salesnet.com/version_4/deal.asmx?WSDL';
-	const CONTACTS = 'https://wsapi.salesnet.com/version_4/contact.asmx?WSDL';
-	const LEADS = 'https://wsapi.salesnet.com/version_4/lead.asmx?WSDL';
-	const CAMPAIGNS = 'https://wsapi.salesnet.com/version_4/campaign.asmx?WSDL';
-	const ACTIVITY = 'https://wsapi.salesnet.com/version_4/activity.asmx?WSDL';
-	const DOCUMENT = 'https://wsapi.salesnet.com/version_4/document.asmx?WSDL';
-	const COMPANY = 'https://wsapi.salesnet.com/version_4/company.asmx?WSDL';
-	const UTILITY = 'https://wsapi.salesnet.com/version_4/utility.asmx?WSDL';
-	const SYSTEM = 'http://wsapi.salesnet.com/version_4/system.asmx?WSDL';
+	CONST CLIENTS = 'https://wsapi.salesnet.com/version_4/account.asmx?WSDL';
+	CONST DEALS = 'https://wsapi.salesnet.com/version_4/deal.asmx?WSDL';
+	CONST CONTACTS = 'https://wsapi.salesnet.com/version_4/contact.asmx?WSDL';
+	CONST LEADS = 'https://wsapi.salesnet.com/version_4/lead.asmx?WSDL';
+	CONST CAMPAIGNS = 'https://wsapi.salesnet.com/version_4/campaign.asmx?WSDL';
+	CONST ACTIVITY = 'https://wsapi.salesnet.com/version_4/activity.asmx?WSDL';
+	CONST DOCUMENT = 'https://wsapi.salesnet.com/version_4/document.asmx?WSDL';
+	CONST COMPANY = 'https://wsapi.salesnet.com/version_4/company.asmx?WSDL';
+	CONST UTILITY = 'https://wsapi.salesnet.com/version_4/utility.asmx?WSDL';
+	CONST SYSTEM = 'http://wsapi.salesnet.com/version_4/system.asmx?WSDL';
 	/**
 	 * Url of the SOAP service to use
 	 * 

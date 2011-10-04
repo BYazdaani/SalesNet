@@ -1,5 +1,6 @@
 <?php
 namespace WebServices\Soap\SalesNet;
+
 use SoapClient;
 use SoapHeader;
 use InvalidArgumentException;

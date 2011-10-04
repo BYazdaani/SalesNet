@@ -7,17 +7,17 @@ use DateTime;
 use DateTimeZone;
 use InvalidArgumentException;
 use BadMethodCallException;
-use ReflectionClass;
+use ReflectionObject;
 /**
  * Class to proxy calls to the various SalesNet web services.
  * Calls to the various soap methods are caught by __call and passed through to a SoapClient to complete.
  * The results of SOAP calls are returned with no processing to the user to handle.
- * Authentication to SalesNet is handled by passing a SalesNet login object with the appropriate credentials to the class constructor.
+ * Authentication to SalesNet is handled by passing a SalesNet login object with the appropriate credentials to the class.
  * 
  * For example, assuming a SoapProxy object of $proxy, an array of arguments of $args and an Authentication object of $auth the following would call the GetDeals method of the Deals endpoint and return the results:
  * 
  * $proxy = new SoapProxy(SoapProxy::DEALS, $auth);
- * $results = $proxy->GetDeals($args); 
+ * $results = $proxy->GetDeals($args);
  * 
  * @author Jeremy Cook
  * @version 1.0
@@ -136,7 +136,7 @@ class SoapProxy {
 	 * @return \WebServices\Soap\SalesNet\SoapProxy
 	 */
 	public function setSoapUrl($SoapServiceUrl) {
-		$reflect = new ReflectionClass('\WebServices\Soap\SalesNet\SoapProxy');
+		$reflect = new ReflectionObject($this);
 		foreach($reflect->getConstants() as $url) {
 			if ($SoapServiceUrl === $url) {
 				/**

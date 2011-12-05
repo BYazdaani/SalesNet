@@ -13,18 +13,18 @@ use ReflectionObject;
  * Calls to the various soap methods are caught by __call and passed through to a SoapClient to complete.
  * The results of SOAP calls are returned with no processing to the user to handle.
  * Authentication to SalesNet is handled by passing a SalesNet login object with the appropriate credentials to the class.
- * 
+ *
  * For example, assuming a SoapProxy object of $proxy, an array of arguments of $args and an Authentication object of $auth the following would call the GetDeals method of the Deals endpoint and return the results:
- * 
+ *
  * $proxy = new SoapProxy(SoapProxy::DEALS, $auth);
  * $results = $proxy->GetDeals($args);
- * 
+ *
  * @author Jeremy Cook
  * @version 1.0
  */
 class SoapProxy {
 	/**
-	 * 
+	 *
 	 * Constants for the various SalesNet SOAP endpoints.
 	 */
 	CONST CLIENTS = 'https://wsapi.salesnet.com/version_4/account.asmx?WSDL';
@@ -39,32 +39,32 @@ class SoapProxy {
 	CONST SYSTEM = 'http://wsapi.salesnet.com/version_4/system.asmx?WSDL';
 	/**
 	 * Url of the SOAP service to use
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $SoapUrl;
 	/**
 	 * SoapClient object
-	 * 
+	 *
 	 * @var \SoapClient
 	 */
 	private $SoapClient;
 	/**
 	 * Array of SoapOptions to use, if any
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $SoapOpts = array();
 	/**
 	 * Login object to use to get an authentication SoapHeader
-	 * 
-	 * @var Login
+	 *
+	 * @var Authentication
 	 */
 	protected $Auth;
 	
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param string $SoapServiceUrl The name of the Soap Service to use. Should be one of the class constants if set
 	 * @param Authentication $auth Authentication object to get a SoapHeader from.
 	 */
@@ -78,7 +78,7 @@ class SoapProxy {
 	/**
 	 * Method to trap any calls to the SOAP client.
 	 * This makes the class act as a proxy for calls to the SalesNet API through the object.
-	 * 
+	 *
 	 * @param string $name Name of SOAP method to call
 	 * @param array $arguments Optional array of arguments to the method
 	 * @return \stdClass
@@ -100,7 +100,7 @@ class SoapProxy {
 	}
 	/**
 	 * Sleep function to control serialization.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function __sleep() {
@@ -108,7 +108,7 @@ class SoapProxy {
 	}
 	/**
 	 * Method to set Soap options to use if any.
-	 * 
+	 *
 	 * @param array $SoapOpts
 	 * @return WebServices\Soap\SalesNet\SoapProxy
 	 * @see http://www.php.net/manual/en/soapclient.soapclient.php
@@ -118,7 +118,7 @@ class SoapProxy {
 		return $this;
 	}
 	/**
-	 * 
+	 *
 	 * Method to set a Login object to perform authentication against the SalesNet security API.
 	 * @param Authentication $auth
 	 * @return WebServices\Soap\SalesNet\SoapProxy
@@ -128,7 +128,7 @@ class SoapProxy {
 		return $this;
 	}
 	/**
-	 * 
+	 *
 	 * Method to set the SOAP endpoint URL for the object.
 	 * The submitted url is validated against the class constants for the various SalesNet endpoints.
 	 * @param string $SoapServiceUrl Should be one of the class constants for the SalesNet endpoints
@@ -140,9 +140,9 @@ class SoapProxy {
 		foreach($reflect->getConstants() as $url) {
 			if ($SoapServiceUrl === $url) {
 				/**
-				 * 
-				 * Reset the Soap client. 
-				 * This will ensure that the next SOAP call will get a new soap client with the new url 
+				 *
+				 * Reset the Soap client.
+				 * This will ensure that the next SOAP call will get a new soap client with the new url
 				 */
 				$this->SoapClient = NULL;
 				$this->SoapUrl = $SoapServiceUrl;
@@ -153,7 +153,7 @@ class SoapProxy {
 	}
 	/**
 	 * Method to return the SoapClient object, initiating a connection if one doesn't already exist.
-	 * 
+	 *
 	 * @return \SoapClient
 	 * @throws \SoapFault
 	 */

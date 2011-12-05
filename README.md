@@ -11,7 +11,7 @@ The SalesNet API requires that before any requests are made to the various servi
 The SoapProxy Object
 --------------------
 
-The SoapProxy object is much simpler than the Authentication object in many ways. It uses PHP's magic __call() method to trap calls to the API, returning the results for the user to process. The SoapProxy object accepts an instance of WebServices\Soap\SalesNet\Authentication which it uses internally to fetch the authentication SoapHeader to successfully call the API. SOAP options can be provided for the PHP SoapClient used in the object and the SoapClient can also be retrieved if needed.
+The SoapProxy object is much simpler than the Authentication object in many ways. It uses PHP's magic __call() method to trap calls to the API, returning the results for the user to process. The SoapProxy object accepts an instance of WebServices\Soap\SalesNet\Authentication which it uses internally to fetch the authentication SoapHeader to successfully call the API. SOAP options can be provided for the PHP SoapClient used in the object.
 
 Example Usage
 -------------
